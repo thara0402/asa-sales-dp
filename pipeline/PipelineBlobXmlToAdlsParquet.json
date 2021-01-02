@@ -84,7 +84,7 @@
 								},
 								"sink": {
 									"name": "unit_price",
-									"type": "Decimal"
+									"type": "Double"
 								}
 							},
 							{
@@ -105,6 +105,10 @@
 						"referenceName": "DatasetBlobXml",
 						"type": "DatasetReference",
 						"parameters": {
+							"store": {
+								"value": "@pipeline().parameters.store",
+								"type": "Expression"
+							},
 							"folderPath": "@{formatDateTime(pipeline().parameters.windowStart,'yyyy')}/@{formatDateTime(pipeline().parameters.windowStart,'MM')}/@{formatDateTime(pipeline().parameters.windowStart,'dd')}"
 						}
 					}
@@ -114,6 +118,10 @@
 						"referenceName": "DatasetAdlsParquet",
 						"type": "DatasetReference",
 						"parameters": {
+							"store": {
+								"value": "@pipeline().parameters.store",
+								"type": "Expression"
+							},
 							"folderPath": "@{formatDateTime(pipeline().parameters.windowStart,'yyyy')}/@{formatDateTime(pipeline().parameters.windowStart,'MM')}/@{formatDateTime(pipeline().parameters.windowStart,'dd')}"
 						}
 					}
@@ -121,6 +129,9 @@
 			}
 		],
 		"parameters": {
+			"store": {
+				"type": "string"
+			},
 			"windowStart": {
 				"type": "string"
 			}

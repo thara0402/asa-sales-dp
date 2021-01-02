@@ -6,6 +6,9 @@
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
+			"store": {
+				"type": "string"
+			},
 			"folderPath": {
 				"type": "string"
 			}
@@ -19,7 +22,10 @@
 					"value": "@dataset().folderPath",
 					"type": "Expression"
 				},
-				"container": "aaa"
+				"container": {
+					"value": "@dataset().store",
+					"type": "Expression"
+				}
 			}
 		}
 	}
