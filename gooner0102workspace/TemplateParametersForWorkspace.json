@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"value": "gooner0102workspace"
+		},
+		"AzureBlobStorage_connectionString": {
+			"value": ""
+		},
+		"gooner0102workspace-WorkspaceDefaultSqlServer_connectionString": {
+			"value": ""
+		},
+		"gooner0102workspace-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"value": "https://gooner0102lake.dfs.core.windows.net"
+		},
+		"TriggerBlobToAdlsStoreAAA_properties_pipeline_parameters_store": {
+			"value": "store-aaa"
+		},
+		"TriggerBlobToAdlsStoreAAA_properties_pipeline_parameters_windowStart": {
+			"value": "@trigger().outputs.windowStartTime"
+		}
+	}
+}
