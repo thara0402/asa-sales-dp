@@ -1,0 +1,28 @@
+{
+	"name": "DatasetAdlsParquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "gooner0102workspace-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"folderPath": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": {
+					"value": "@dataset().folderPath",
+					"type": "Expression"
+				},
+				"fileSystem": "aaa"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
