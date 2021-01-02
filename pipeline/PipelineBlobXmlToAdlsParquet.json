@@ -84,7 +84,7 @@
 								},
 								"sink": {
 									"name": "unit_price",
-									"type": "Double"
+									"type": "Decimal"
 								}
 							},
 							{
