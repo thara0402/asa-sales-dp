@@ -3,16 +3,6 @@
 	"properties": {
 		"annotations": [],
 		"runtimeState": "Started",
-		"pipeline": {
-			"pipelineReference": {
-				"referenceName": "PipelineBlobXmlToAdlsParquet",
-				"type": "PipelineReference"
-			},
-			"parameters": {
-				"store": "store-aaa",
-				"windowStart": "@trigger().outputs.windowStartTime"
-			}
-		},
 		"type": "TumblingWindowTrigger",
 		"typeProperties": {
 			"frequency": "Hour",
