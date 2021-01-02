@@ -2,7 +2,7 @@
 	"name": "TriggerBlobToAdlsStoreAAA",
 	"properties": {
 		"annotations": [],
-		"runtimeState": "Started",
+		"runtimeState": "Stopped",
 		"type": "TumblingWindowTrigger",
 		"typeProperties": {
 			"frequency": "Hour",
