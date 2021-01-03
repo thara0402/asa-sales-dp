@@ -11,6 +11,9 @@
 		"gooner0102workspace-WorkspaceDefaultSqlServer_connectionString": {
 			"value": ""
 		},
+		"AzureSqlDatabaseSales_connectionString": {
+			"value": ""
+		},
 		"gooner0102workspace-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"value": "https://gooner0102lake.dfs.core.windows.net"
 		},
