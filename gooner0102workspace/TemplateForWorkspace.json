@@ -18,6 +18,14 @@
 		"gooner0102workspace-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://gooner0102lake.dfs.core.windows.net"
+		},
+		"TriggerA_properties_pipeline_parameters_store": {
+			"type": "string",
+			"defaultValue": "store-aaa"
+		},
+		"TriggerA_properties_pipeline_parameters_windowStart": {
+			"type": "string",
+			"defaultValue": "@trigger().outputs.windowStartTime"
 		}
 	},
 	"variables": {
@@ -346,6 +354,40 @@
 				"annotations": []
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/TriggerA')]",
+			"type": "Microsoft.Synapse/workspaces/triggers",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "PipelineBlobXmlToAdlsParquet",
+						"type": "PipelineReference"
+					},
+					"parameters": {
+						"store": "[parameters('TriggerA_properties_pipeline_parameters_store')]",
+						"windowStart": "[parameters('TriggerA_properties_pipeline_parameters_windowStart')]"
+					}
+				},
+				"type": "TumblingWindowTrigger",
+				"typeProperties": {
+					"frequency": "Hour",
+					"interval": 24,
+					"startTime": "2021-01-01T15:00:00.000Z",
+					"delay": "00:00:00",
+					"maxConcurrency": 50,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": []
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/PipelineBlobXmlToAdlsParquet')]"
+			]
 		}
 	]
 }
