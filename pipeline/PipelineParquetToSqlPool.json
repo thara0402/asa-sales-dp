@@ -19,6 +19,13 @@
 						"referenceName": "DataflowParquetToSqlPool",
 						"type": "DataFlowReference"
 					},
+					"staging": {
+						"linkedService": {
+							"referenceName": "gooner0102workspace-WorkspaceDefaultStorage",
+							"type": "LinkedServiceReference"
+						},
+						"folderPath": "staging"
+					},
 					"compute": {
 						"coreCount": 8,
 						"computeType": "General"
