@@ -1,0 +1,16 @@
+{
+	"name": "DatasetSqlPoolSales",
+	"properties": {
+		"annotations": [],
+		"type": "SqlPoolTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Sales"
+		},
+		"sqlPool": {
+			"referenceName": "SQLDW1",
+			"type": "SqlPoolReference"
+		}
+	}
+}
