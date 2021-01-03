@@ -10,7 +10,6 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"folderPath": "2021/01/01",
 				"fileSystem": "store-aaa"
 			},
 			"compressionCodec": "snappy"
