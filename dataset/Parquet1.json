@@ -10,6 +10,8 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
+				"fileName": "sales_data_A.parquet",
+				"folderPath": "2021/01/02",
 				"fileSystem": "store-aaa"
 			},
 			"compressionCodec": "snappy"
