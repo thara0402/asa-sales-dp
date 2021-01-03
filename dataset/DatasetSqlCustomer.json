@@ -1,0 +1,29 @@
+{
+	"name": "DatasetSqlCustomer",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabaseSales",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "CustomerCode",
+				"type": "nvarchar"
+			},
+			{
+				"name": "StandardCode",
+				"type": "nvarchar"
+			},
+			{
+				"name": "StandardName",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "CustomerView"
+		}
+	}
+}
