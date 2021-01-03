@@ -1,0 +1,19 @@
+{
+	"name": "DatasetDedicatedSqlPoolSales",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "gooner0102workspace-WorkspaceDefaultSqlServer",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"DBName": "SQLDW1"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Sales"
+		}
+	}
+}
