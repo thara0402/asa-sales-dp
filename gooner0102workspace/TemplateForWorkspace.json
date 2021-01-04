@@ -256,82 +256,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/DatasetAdlsParquet')]",
-			"type": "Microsoft.Synapse/workspaces/datasets",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "gooner0102workspace-WorkspaceDefaultStorage",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"store": {
-						"type": "string"
-					},
-					"folderPath": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "Parquet",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"folderPath": {
-							"value": "@dataset().folderPath",
-							"type": "Expression"
-						},
-						"fileSystem": {
-							"value": "@dataset().store",
-							"type": "Expression"
-						}
-					},
-					"compressionCodec": "snappy"
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/linkedServices/gooner0102workspace-WorkspaceDefaultStorage')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/DatasetBlobXml')]",
-			"type": "Microsoft.Synapse/workspaces/datasets",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"store": {
-						"type": "string"
-					},
-					"folderPath": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "Xml",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"folderPath": {
-							"value": "@dataset().folderPath",
-							"type": "Expression"
-						},
-						"container": {
-							"value": "@dataset().store",
-							"type": "Expression"
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/linkedServices/AzureBlobStorage')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('workspaceName'), '/DatasetDedicatedSqlPoolSales')]",
 			"type": "Microsoft.Synapse/workspaces/datasets",
 			"apiVersion": "2019-06-01-preview",
@@ -606,7 +530,7 @@
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "Parquet2",
+								"referenceName": "DatasetAdlsParquetSalesNoneParameter",
 								"type": "DatasetReference"
 							},
 							"name": "SourceParquetSales"
@@ -640,7 +564,7 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/datasets/Parquet2')]",
+				"[concat(variables('workspaceId'), '/datasets/DatasetAdlsParquetSalesNoneParameter')]",
 				"[concat(variables('workspaceId'), '/datasets/DatasetSqlCustomer')]",
 				"[concat(variables('workspaceId'), '/datasets/DatasetDedicatedSqlPoolSales')]"
 			]
@@ -783,6 +707,57 @@
 					"compressionCodec": "snappy"
 				},
 				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/gooner0102workspace-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/DatasetAdlsParquetSalesNoneParameter')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "gooner0102workspace-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "sales"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "id",
+						"type": "INT64"
+					},
+					{
+						"name": "order_date",
+						"type": "INT96"
+					},
+					{
+						"name": "customer_code",
+						"type": "UTF8"
+					},
+					{
+						"name": "product_code",
+						"type": "UTF8"
+					},
+					{
+						"name": "unit_price",
+						"type": "DECIMAL",
+						"precision": 38,
+						"scale": 18
+					},
+					{
+						"name": "quantity",
+						"type": "INT64"
+					}
+				]
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/gooner0102workspace-WorkspaceDefaultStorage')]"
