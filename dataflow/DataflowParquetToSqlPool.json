@@ -6,7 +6,7 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "Parquet2",
+						"referenceName": "DatasetAdlsParquetSalesNoneParameter",
 						"type": "DatasetReference"
 					},
 					"name": "SourceParquetSales"
