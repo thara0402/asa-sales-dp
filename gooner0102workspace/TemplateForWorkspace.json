@@ -30,6 +30,14 @@
 		"IngestSalesTriggerA_properties_pipeline_parameters_windowStart": {
 			"type": "string",
 			"defaultValue": "@trigger().outputs.windowStartTime"
+		},
+		"BatchSalesTriggerA_properties_pipeline_parameters_store": {
+			"type": "string",
+			"defaultValue": "store-a"
+		},
+		"BatchSalesTriggerA_properties_pipeline_parameters_windowStart": {
+			"type": "string",
+			"defaultValue": "@trigger().outputs.windowStartTime"
 		}
 	},
 	"variables": {
@@ -658,6 +666,40 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/pipelines/PipelineBlobXmlToAdlsParquet')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/BatchSalesTriggerA')]",
+			"type": "Microsoft.Synapse/workspaces/triggers",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "PipelineParquetToSqlPool",
+						"type": "PipelineReference"
+					},
+					"parameters": {
+						"store": "[parameters('BatchSalesTriggerA_properties_pipeline_parameters_store')]",
+						"windowStart": "[parameters('BatchSalesTriggerA_properties_pipeline_parameters_windowStart')]"
+					}
+				},
+				"type": "TumblingWindowTrigger",
+				"typeProperties": {
+					"frequency": "Hour",
+					"interval": 24,
+					"startTime": "2021-01-01T15:30:00.000Z",
+					"delay": "00:00:00",
+					"maxConcurrency": 50,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": []
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/PipelineParquetToSqlPool')]"
 			]
 		}
 	]

@@ -22,6 +22,12 @@
 		},
 		"IngestSalesTriggerA_properties_pipeline_parameters_windowStart": {
 			"value": "@trigger().outputs.windowStartTime"
+		},
+		"BatchSalesTriggerA_properties_pipeline_parameters_store": {
+			"value": "store-a"
+		},
+		"BatchSalesTriggerA_properties_pipeline_parameters_windowStart": {
+			"value": "@trigger().outputs.windowStartTime"
 		}
 	}
 }
