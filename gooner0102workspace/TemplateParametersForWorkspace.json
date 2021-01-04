@@ -17,10 +17,10 @@
 		"gooner0102workspace-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"value": "https://gooner0102lake.dfs.core.windows.net"
 		},
-		"TriggerA_properties_pipeline_parameters_store": {
-			"value": "store-aaa"
+		"IngestSalesTriggerA_properties_pipeline_parameters_store": {
+			"value": "store-a"
 		},
-		"TriggerA_properties_pipeline_parameters_windowStart": {
+		"IngestSalesTriggerA_properties_pipeline_parameters_windowStart": {
 			"value": "@trigger().outputs.windowStartTime"
 		}
 	}
