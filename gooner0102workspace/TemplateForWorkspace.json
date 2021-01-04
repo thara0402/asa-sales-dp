@@ -142,14 +142,17 @@
 						},
 						"inputs": [
 							{
-								"referenceName": "DatasetBlobXml",
+								"referenceName": "DatasetBlobXmlSales",
 								"type": "DatasetReference",
 								"parameters": {
 									"store": {
 										"value": "@pipeline().parameters.store",
 										"type": "Expression"
 									},
-									"folderPath": "@{formatDateTime(pipeline().parameters.windowStart,'yyyy')}/@{formatDateTime(pipeline().parameters.windowStart,'MM')}/@{formatDateTime(pipeline().parameters.windowStart,'dd')}"
+									"folderPath": {
+										"value": "@{formatDateTime(pipeline().parameters.windowStart,'yyyy')}/@{formatDateTime(pipeline().parameters.windowStart,'MM')}/@{formatDateTime(pipeline().parameters.windowStart,'dd')}",
+										"type": "Expression"
+									}
 								}
 							}
 						],
@@ -179,7 +182,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/datasets/DatasetBlobXml')]",
+				"[concat(variables('workspaceId'), '/datasets/DatasetBlobXmlSales')]",
 				"[concat(variables('workspaceId'), '/datasets/DatasetAdlsParquet')]"
 			]
 		},
@@ -710,6 +713,43 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/gooner0102workspace-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/DatasetBlobXmlSales')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"store": {
+						"type": "string"
+					},
+					"folderPath": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Xml",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": {
+							"value": "sales/@{dataset().folderPath}",
+							"type": "Expression"
+						},
+						"container": {
+							"value": "@dataset().store",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/AzureBlobStorage')]"
 			]
 		}
 	]
