@@ -8,10 +8,10 @@
 		"AzureBlobStorage_connectionString": {
 			"value": ""
 		},
-		"gooner0102workspace-WorkspaceDefaultSqlServer_connectionString": {
+		"AzureSqlDatabaseSales_connectionString": {
 			"value": ""
 		},
-		"AzureSqlDatabaseSales_connectionString": {
+		"gooner0102workspace-WorkspaceDefaultSqlServer_connectionString": {
 			"value": ""
 		},
 		"gooner0102workspace-WorkspaceDefaultStorage_properties_typeProperties_url": {
