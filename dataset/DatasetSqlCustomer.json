@@ -9,6 +9,10 @@
 		"type": "AzureSqlTable",
 		"schema": [
 			{
+				"name": "Store",
+				"type": "nvarchar"
+			},
+			{
 				"name": "CustomerCode",
 				"type": "nvarchar"
 			},
