@@ -1,0 +1,29 @@
+{
+	"name": "BatchSalesTriggerA",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipeline": {
+			"pipelineReference": {
+				"referenceName": "PipelineParquetToSqlPool",
+				"type": "PipelineReference"
+			},
+			"parameters": {
+				"store": "store-a",
+				"windowStart": "@trigger().outputs.windowStartTime"
+			}
+		},
+		"type": "TumblingWindowTrigger",
+		"typeProperties": {
+			"frequency": "Hour",
+			"interval": 24,
+			"startTime": "2021-01-01T15:30:00.000Z",
+			"delay": "00:00:00",
+			"maxConcurrency": 50,
+			"retryPolicy": {
+				"intervalInSeconds": 30
+			},
+			"dependsOn": []
+		}
+	}
+}
