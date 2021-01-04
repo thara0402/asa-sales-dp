@@ -1,0 +1,32 @@
+{
+	"name": "DatasetBlobXmlSales",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"store": {
+				"type": "string"
+			},
+			"folderPath": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Xml",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": {
+					"value": "sales/@{dataset().folderPath}",
+					"type": "Expression"
+				},
+				"container": {
+					"value": "@dataset().store",
+					"type": "Expression"
+				}
+			}
+		}
+	}
+}
