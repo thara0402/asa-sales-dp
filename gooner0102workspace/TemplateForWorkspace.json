@@ -158,7 +158,7 @@
 						],
 						"outputs": [
 							{
-								"referenceName": "DatasetAdlsParquet",
+								"referenceName": "DatasetAdlsParquetSales",
 								"type": "DatasetReference",
 								"parameters": {
 									"store": {
@@ -183,7 +183,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/datasets/DatasetBlobXmlSales')]",
-				"[concat(variables('workspaceId'), '/datasets/DatasetAdlsParquet')]"
+				"[concat(variables('workspaceId'), '/datasets/DatasetAdlsParquetSales')]"
 			]
 		},
 		{
@@ -750,6 +750,42 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/AzureBlobStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/DatasetAdlsParquetSales')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "gooner0102workspace-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"store": {
+						"type": "string"
+					},
+					"folderPath": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": {
+							"value": "@{dataset().store}/@{dataset().folderPath}",
+							"type": "Expression"
+						},
+						"fileSystem": "sales"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/gooner0102workspace-WorkspaceDefaultStorage')]"
 			]
 		}
 	]
