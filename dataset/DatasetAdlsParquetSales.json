@@ -1,0 +1,31 @@
+{
+	"name": "DatasetAdlsParquetSales",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "gooner0102workspace-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"store": {
+				"type": "string"
+			},
+			"folderPath": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": {
+					"value": "@{dataset().store}/@{dataset().folderPath}",
+					"type": "Expression"
+				},
+				"fileSystem": "sales"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}

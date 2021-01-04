@@ -118,7 +118,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "DatasetAdlsParquet",
+						"referenceName": "DatasetAdlsParquetSales",
 						"type": "DatasetReference",
 						"parameters": {
 							"store": {
