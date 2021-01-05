@@ -222,7 +222,7 @@
 										"type": "Expression"
 									},
 									"folderPath": {
-										"value": "'@{formatDateTime(pipeline().parameters.windowStart,'yyyy')}/@{formatDateTime(pipeline().parameters.windowStart,'MM')}/@{formatDateTime(pipeline().parameters.windowStart,'dd')}'",
+										"value": "'concat(@{formatDateTime(pipeline().parameters.windowStart,'yyyy')},'/',@{formatDateTime(pipeline().parameters.windowStart,'MM')},'/',@{formatDateTime(pipeline().parameters.windowStart,'dd')})'",
 										"type": "Expression"
 									}
 								},
@@ -261,6 +261,49 @@
 				"[concat(variables('workspaceId'), '/dataflows/DataflowParquetToSqlPool')]",
 				"[concat(variables('workspaceId'), '/linkedServices/gooner0102workspace-WorkspaceDefaultStorage')]",
 				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/PipelineSqlPoolToSqlDb')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "DataflowSqlPoolToSqlDb",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DataflowSqlPoolToSqlDb",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourceSqlPoolSales": {},
+									"SinkSqlSalesByCustomer": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/dataflows/DataflowSqlPoolToSqlDb')]"
 			]
 		},
 		{
@@ -450,6 +493,27 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/DatasetSqlSalesByCustomer')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabaseSales",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "SalesByCustomer"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/AzureSqlDatabaseSales')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/AzureBlobStorage')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
 			"apiVersion": "2019-06-01-preview",
@@ -599,6 +663,37 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/ServingSalesTrigger')]",
+			"type": "Microsoft.Synapse/workspaces/triggers",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "PipelineSqlPoolToSqlDb",
+						"type": "PipelineReference"
+					},
+					"parameters": {}
+				},
+				"type": "TumblingWindowTrigger",
+				"typeProperties": {
+					"frequency": "Hour",
+					"interval": 24,
+					"startTime": "2021-01-01T16:00:00.000Z",
+					"delay": "00:00:00",
+					"maxConcurrency": 50,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": []
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/PipelineSqlPoolToSqlDb')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/AutoResolveIntegrationRuntime')]",
 			"type": "Microsoft.Synapse/workspaces/integrationRuntimes",
 			"apiVersion": "2019-06-01-preview",
@@ -670,25 +765,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/WorkspaceSystemIdentity')]",
-			"type": "Microsoft.Synapse/workspaces/credentials",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"type": "ManagedIdentity",
-				"typeProperties": {}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/SQLDW1')]",
-			"type": "Microsoft.Synapse/workspaces/sqlPools",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"annotations": []
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('workspaceName'), '/DataflowSqlPoolToSqlDb')]",
 			"type": "Microsoft.Synapse/workspaces/dataflows",
 			"apiVersion": "2019-06-01-preview",
@@ -718,7 +794,7 @@
 							"name": "Aggregate"
 						}
 					],
-					"script": "source(output(\n\t\tID as long,\n\t\tOrderDate as timestamp,\n\t\tCustomerCode as string,\n\t\tProductCode as string,\n\t\tUnitPrice as decimal(38,18),\n\t\tQuantity as long,\n\t\tStandardCustomerCode as string,\n\t\tStandardCustomerName as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: 'select * from sales',\n\tformat: 'query',\n\tstaged: false) ~> SourceSqlPoolSales\nSourceSqlPoolSales aggregate(groupBy(StandardCustomerCode),\n\tUnitPriceAvg = avg(UnitPrice),\n\t\tQuantitySum = sum(Quantity)) ~> Aggregate\nAggregate sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\ttruncate:true,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> SinkSqlSalesByCustomer"
+					"script": "source(output(\n\t\tID as long,\n\t\tOrderDate as timestamp,\n\t\tCustomerCode as string,\n\t\tProductCode as string,\n\t\tUnitPrice as decimal(38,18),\n\t\tQuantity as long,\n\t\tStandardCustomerCode as string,\n\t\tStandardCustomerName as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: 'SELECT * FROM Sales',\n\tformat: 'query',\n\tstaged: false) ~> SourceSqlPoolSales\nSourceSqlPoolSales aggregate(groupBy(StandardCustomerCode),\n\tUnitPriceAvg = avg(UnitPrice),\n\t\tQuantitySum = sum(Quantity)) ~> Aggregate\nAggregate sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\ttruncate:true,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> SinkSqlSalesByCustomer"
 				}
 			},
 			"dependsOn": [
@@ -727,100 +803,23 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/DatasetSqlSalesByCustomer')]",
-			"type": "Microsoft.Synapse/workspaces/datasets",
+			"name": "[concat(parameters('workspaceName'), '/WorkspaceSystemIdentity')]",
+			"type": "Microsoft.Synapse/workspaces/credentials",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureSqlDatabaseSales",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "SalesByCustomer"
-				}
+				"type": "ManagedIdentity",
+				"typeProperties": {}
 			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/linkedServices/AzureSqlDatabaseSales')]"
-			]
+			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/PipelineSqlPoolToSqlDb')]",
-			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"name": "[concat(parameters('workspaceName'), '/SQLDW1')]",
+			"type": "Microsoft.Synapse/workspaces/sqlPools",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
-				"activities": [
-					{
-						"name": "DataflowSqlPoolToSqlDb",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DataflowSqlPoolToSqlDb",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"SourceSqlPoolSales": {},
-									"SinkSqlSalesByCustomer": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
 				"annotations": []
 			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/dataflows/DataflowSqlPoolToSqlDb')]",
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/ServingSalesTrigger')]",
-			"type": "Microsoft.Synapse/workspaces/triggers",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipeline": {
-					"pipelineReference": {
-						"referenceName": "PipelineSqlPoolToSqlDb",
-						"type": "PipelineReference"
-					},
-					"parameters": {}
-				},
-				"type": "TumblingWindowTrigger",
-				"typeProperties": {
-					"frequency": "Hour",
-					"interval": 24,
-					"startTime": "2021-01-01T16:00:00.000Z",
-					"delay": "00:00:00",
-					"maxConcurrency": 50,
-					"retryPolicy": {
-						"intervalInSeconds": 30
-					},
-					"dependsOn": []
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/pipelines/PipelineSqlPoolToSqlDb')]"
-			]
+			"dependsOn": []
 		}
 	]
 }
