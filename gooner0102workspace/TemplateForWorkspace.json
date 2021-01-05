@@ -222,7 +222,7 @@
 										"type": "Expression"
 									},
 									"folderPath": {
-										"value": "'@{formatDateTime(pipeline().parameters.windowStart,'yyyy')}/@{formatDateTime(pipeline().parameters.windowStart,'MM')}/@{formatDateTime(pipeline().parameters.windowStart,'dd')}\n@trigger().outputs.windowStartTime'",
+										"value": "'@{formatDateTime(pipeline().parameters.windowStart,'yyyy')}/@{formatDateTime(pipeline().parameters.windowStart,'MM')}/@{formatDateTime(pipeline().parameters.windowStart,'dd')}'",
 										"type": "Expression"
 									}
 								},
