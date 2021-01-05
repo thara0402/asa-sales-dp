@@ -687,6 +687,109 @@
 				"annotations": []
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/DataflowSqlPoolToSqlDb')]",
+			"type": "Microsoft.Synapse/workspaces/dataflows",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DatasetDedicatedSqlPoolSales",
+								"type": "DatasetReference"
+							},
+							"name": "SourceSqlPoolSales"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DatasetSqlSalesByCustomer",
+								"type": "DatasetReference"
+							},
+							"name": "SinkSqlSalesByCustomer"
+						}
+					],
+					"transformations": [
+						{
+							"name": "Aggregate"
+						}
+					],
+					"script": "source(output(\n\t\tID as long,\n\t\tOrderDate as timestamp,\n\t\tCustomerCode as string,\n\t\tProductCode as string,\n\t\tUnitPrice as decimal(38,18),\n\t\tQuantity as long,\n\t\tStandardCustomerCode as string,\n\t\tStandardCustomerName as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: 'select * from sales',\n\tformat: 'query',\n\tstaged: false) ~> SourceSqlPoolSales\nSourceSqlPoolSales aggregate(groupBy(StandardCustomerCode),\n\tUnitPriceAvg = avg(UnitPrice),\n\t\tQuantitySum = sum(Quantity)) ~> Aggregate\nAggregate sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> SinkSqlSalesByCustomer"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/DatasetDedicatedSqlPoolSales')]",
+				"[concat(variables('workspaceId'), '/datasets/DatasetSqlSalesByCustomer')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/DatasetSqlSalesByCustomer')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabaseSales",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "SalesByCustomer"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/AzureSqlDatabaseSales')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/PipelineSqlPoolToSqlDb')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "DataflowSqlPoolToSqlDb",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DataflowSqlPoolToSqlDb",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourceSqlPoolSales": {},
+									"SinkSqlSalesByCustomer": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/dataflows/DataflowSqlPoolToSqlDb')]",
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
 		}
 	]
 }
