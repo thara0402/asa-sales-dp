@@ -1,0 +1,32 @@
+{
+	"name": "DataflowSqlPoolToSqlDb",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DatasetDedicatedSqlPoolSales",
+						"type": "DatasetReference"
+					},
+					"name": "SourceSqlPoolSales"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DatasetSqlSalesByCustomer",
+						"type": "DatasetReference"
+					},
+					"name": "SinkSqlSalesByCustomer"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Aggregate"
+				}
+			],
+			"script": "source(output(\n\t\tID as long,\n\t\tOrderDate as timestamp,\n\t\tCustomerCode as string,\n\t\tProductCode as string,\n\t\tUnitPrice as decimal(38,18),\n\t\tQuantity as long,\n\t\tStandardCustomerCode as string,\n\t\tStandardCustomerName as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: 'select * from sales',\n\tformat: 'query',\n\tstaged: false) ~> SourceSqlPoolSales\nSourceSqlPoolSales aggregate(groupBy(StandardCustomerCode),\n\tUnitPriceAvg = avg(UnitPrice),\n\t\tQuantitySum = sum(Quantity)) ~> Aggregate\nAggregate sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> SinkSqlSalesByCustomer"
+		}
+	}
+}
