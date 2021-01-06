@@ -5,7 +5,14 @@
 			{
 				"name": "CopyBlobXmlToAdlsParquet",
 				"type": "Copy",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Check Blob Exsits",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -129,6 +136,47 @@
 						}
 					}
 				]
+			},
+			{
+				"name": "Check Blob Exsits",
+				"type": "Validation",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DatasetBlobXmlSales",
+						"type": "DatasetReference",
+						"parameters": {
+							"store": {
+								"value": "@pipeline().parameters.store",
+								"type": "Expression"
+							},
+							"folderPath": {
+								"value": "@{formatDateTime(pipeline().parameters.windowStart,'yyyy')}/@{formatDateTime(pipeline().parameters.windowStart,'MM')}/@{formatDateTime(pipeline().parameters.windowStart,'dd')}",
+								"type": "Expression"
+							}
+						}
+					},
+					"timeout": "0.00:00:10",
+					"sleep": 10,
+					"childItems": true
+				}
+			},
+			{
+				"name": "No File Available",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "Check Blob Exsits",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 1
+				}
 			}
 		],
 		"parameters": {
