@@ -55,7 +55,7 @@
 						"type": "Copy",
 						"dependsOn": [
 							{
-								"activity": "Check Blob Exsits",
+								"activity": "Check Xml Exsits",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -186,7 +186,7 @@
 						]
 					},
 					{
-						"name": "Check Blob Exsits",
+						"name": "Check Xml Exsits",
 						"type": "Validation",
 						"dependsOn": [],
 						"userProperties": [],
@@ -211,11 +211,11 @@
 						}
 					},
 					{
-						"name": "No File Available",
+						"name": "No Files Available",
 						"type": "Wait",
 						"dependsOn": [
 							{
-								"activity": "Check Blob Exsits",
+								"activity": "Check Xml Exsits",
 								"dependencyConditions": [
 									"Failed"
 								]
@@ -251,7 +251,14 @@
 					{
 						"name": "DataflowParquetToSqlPool",
 						"type": "ExecuteDataFlow",
-						"dependsOn": [],
+						"dependsOn": [
+							{
+								"activity": "Check Parquet Exists",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
@@ -293,6 +300,47 @@
 							},
 							"traceLevel": "Fine"
 						}
+					},
+					{
+						"name": "Check Parquet Exists",
+						"type": "Validation",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "DatasetAdlsParquetSales",
+								"type": "DatasetReference",
+								"parameters": {
+									"store": {
+										"value": "@pipeline().parameters.store",
+										"type": "Expression"
+									},
+									"folderPath": {
+										"value": "@{formatDateTime(pipeline().parameters.windowStart,'yyyy')}/@{formatDateTime(pipeline().parameters.windowStart,'MM')}/@{formatDateTime(pipeline().parameters.windowStart,'dd')}",
+										"type": "Expression"
+									}
+								}
+							},
+							"timeout": "0.00:00:10",
+							"sleep": 10,
+							"childItems": true
+						}
+					},
+					{
+						"name": "No Files Available",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Check Parquet Exists",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
 					}
 				],
 				"parameters": {
@@ -308,7 +356,8 @@
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/dataflows/DataflowParquetToSqlPool')]",
 				"[concat(variables('workspaceId'), '/linkedServices/gooner0102workspace-WorkspaceDefaultStorage')]",
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]",
+				"[concat(variables('workspaceId'), '/datasets/DatasetAdlsParquetSales')]"
 			]
 		},
 		{
