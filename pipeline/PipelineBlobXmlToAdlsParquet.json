@@ -7,7 +7,7 @@
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "Check Blob Exsits",
+						"activity": "Check Xml Exsits",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -138,7 +138,7 @@
 				]
 			},
 			{
-				"name": "Check Blob Exsits",
+				"name": "Check Xml Exsits",
 				"type": "Validation",
 				"dependsOn": [],
 				"userProperties": [],
@@ -163,11 +163,11 @@
 				}
 			},
 			{
-				"name": "No File Available",
+				"name": "No Files Available",
 				"type": "Wait",
 				"dependsOn": [
 					{
-						"activity": "Check Blob Exsits",
+						"activity": "Check Xml Exsits",
 						"dependencyConditions": [
 							"Failed"
 						]

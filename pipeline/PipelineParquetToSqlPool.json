@@ -5,7 +5,14 @@
 			{
 				"name": "DataflowParquetToSqlPool",
 				"type": "ExecuteDataFlow",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Check Parquet Exists",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -41,6 +48,47 @@
 						"computeType": "General"
 					},
 					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Check Parquet Exists",
+				"type": "Validation",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DatasetAdlsParquetSales",
+						"type": "DatasetReference",
+						"parameters": {
+							"store": {
+								"value": "@pipeline().parameters.store",
+								"type": "Expression"
+							},
+							"folderPath": {
+								"value": "@{formatDateTime(pipeline().parameters.windowStart,'yyyy')}/@{formatDateTime(pipeline().parameters.windowStart,'MM')}/@{formatDateTime(pipeline().parameters.windowStart,'dd')}",
+								"type": "Expression"
+							}
+						}
+					},
+					"timeout": "0.00:00:10",
+					"sleep": 10,
+					"childItems": true
+				}
+			},
+			{
+				"name": "No Files Available",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "Check Parquet Exists",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 1
 				}
 			}
 		],
