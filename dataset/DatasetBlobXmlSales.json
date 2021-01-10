@@ -2,7 +2,7 @@
 	"name": "DatasetBlobXmlSales",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "AzureBlobStorage",
+			"referenceName": "AzureBlobStorageIngest",
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
