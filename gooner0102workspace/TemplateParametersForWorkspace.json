@@ -28,6 +28,9 @@
 		},
 		"IngestSalesTriggerA_properties_pipeline_parameters_windowStart": {
 			"value": "@trigger().outputs.windowStartTime"
+		},
+		"AzureBlobStorageIngest_properties_typeProperties_serviceEndpoint": {
+			"value": "https://gooner0102.blob.core.windows.net"
 		}
 	}
 }
