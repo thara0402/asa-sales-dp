@@ -7,10 +7,6 @@
 			"metadata": "Workspace name",
 			"defaultValue": "gooner0102workspace"
 		},
-		"AzureBlobStorage_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorage'"
-		},
 		"AzureSqlDatabaseSales_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabaseSales'"
@@ -612,25 +608,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/AzureSqlDatabaseSales')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/AzureBlobStorage')]",
-			"type": "Microsoft.Synapse/workspaces/linkedServices",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobStorage",
-				"typeProperties": {
-					"connectionString": "[parameters('AzureBlobStorage_connectionString')]"
-				},
-				"connectVia": {
-					"referenceName": "AutoResolveIntegrationRuntime",
-					"type": "IntegrationRuntimeReference"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
 			]
 		},
 		{
