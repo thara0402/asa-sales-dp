@@ -11,6 +11,9 @@
 		"gooner0102workspace-WorkspaceDefaultSqlServer_connectionString": {
 			"value": ""
 		},
+		"AzureBlobStorageIngest_properties_typeProperties_serviceEndpoint": {
+			"value": "https://gooner0102.blob.core.windows.net"
+		},
 		"gooner0102workspace-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"value": "https://gooner0102lake.dfs.core.windows.net"
 		},
@@ -25,9 +28,6 @@
 		},
 		"IngestSalesTriggerA_properties_pipeline_parameters_windowStart": {
 			"value": "@trigger().outputs.windowStartTime"
-		},
-		"AzureBlobStorageIngest_properties_typeProperties_serviceEndpoint": {
-			"value": "https://gooner0102.blob.core.windows.net"
 		}
 	}
 }

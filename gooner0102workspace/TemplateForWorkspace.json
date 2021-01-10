@@ -15,6 +15,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'gooner0102workspace-WorkspaceDefaultSqlServer'"
 		},
+		"AzureBlobStorageIngest_properties_typeProperties_serviceEndpoint": {
+			"type": "string",
+			"defaultValue": "https://gooner0102.blob.core.windows.net"
+		},
 		"gooner0102workspace-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://gooner0102lake.dfs.core.windows.net"
@@ -34,10 +38,6 @@
 		"IngestSalesTriggerA_properties_pipeline_parameters_windowStart": {
 			"type": "string",
 			"defaultValue": "@trigger().outputs.windowStartTime"
-		},
-		"AzureBlobStorageIngest_properties_typeProperties_serviceEndpoint": {
-			"type": "string",
-			"defaultValue": "https://gooner0102.blob.core.windows.net"
 		}
 	},
 	"variables": {
@@ -611,6 +611,26 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/AzureBlobStorageIngest')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"serviceEndpoint": "[parameters('AzureBlobStorageIngest_properties_typeProperties_serviceEndpoint')]",
+					"accountKind": "StorageV2"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/AzureSqlDatabaseSales')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
 			"apiVersion": "2019-06-01-preview",
@@ -900,24 +920,23 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/AzureBlobStorageIngest')]",
-			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"name": "[concat(parameters('workspaceName'), '/CreateCustomerTable')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
-				"annotations": [],
-				"type": "AzureBlobStorage",
-				"typeProperties": {
-					"serviceEndpoint": "[parameters('AzureBlobStorageIngest_properties_typeProperties_serviceEndpoint')]",
-					"accountKind": "StorageV2"
+				"content": {
+					"query": "DROP TABLE [dbo].[CustomerMapping]\nDROP TABLE [dbo].[Customer]\nDROP TABLE [dbo].[StandardCustomer]\n\nCREATE TABLE [dbo].[Customer](\n    [ID] [int] IDENTITY(1,1) NOT NULL,\n    [Store] [nvarchar](100) NULL,\n    [CustomerCode] [nvarchar](100) NULL,\n    [CustomerName] [nvarchar](100) NULL\n) ON [PRIMARY]\nALTER TABLE [dbo].[Customer] \n\tADD CONSTRAINT PK_Customer_ID PRIMARY KEY ([ID])\nALTER TABLE [dbo].[Customer] \n\tADD CONSTRAINT UK_Customer_CustomerCode UNIQUE ([Store], [CustomerCode])\n\nCREATE TABLE [dbo].[StandardCustomer](\n    [ID] [int] IDENTITY(1,1) NOT NULL,\n    [StandardCode] [nvarchar](100) NULL,\n    [StandardName] [nvarchar](100) NULL\n) ON [PRIMARY]\nALTER TABLE [dbo].[StandardCustomer] \n\tADD CONSTRAINT PK_StandardCustomer_ID PRIMARY KEY ([ID])\nALTER TABLE [dbo].[StandardCustomer] \n\tADD CONSTRAINT UK_StandardCustomer_StandardCode UNIQUE ([StandardCode])\n\nCREATE TABLE [dbo].[CustomerMapping](\n    [ID] [int] IDENTITY(1,1) NOT NULL,\n    [CustomerID] [int],\n    [StandardID] [int]\n) ON [PRIMARY]\nALTER TABLE [dbo].[CustomerMapping] \n\tADD CONSTRAINT PK_CustomerMapping_ID PRIMARY KEY ([ID])\nALTER TABLE [dbo].[CustomerMapping]\n\tADD CONSTRAINT FK_CustomerMapping_CustomerID FOREIGN KEY ([CustomerID])\n\t\tREFERENCES [dbo].[Customer] ([ID]) \n\t\tON DELETE CASCADE\nALTER TABLE [dbo].[CustomerMapping]\n\tADD CONSTRAINT FK_CustomerMapping_StandardID FOREIGN KEY ([StandardID])\n\t\tREFERENCES [dbo].[StandardCustomer] ([ID]) \n\t\tON DELETE CASCADE\n\n\nINSERT [dbo].[Customer] ([Store], [CustomerCode], [CustomerName]) VALUES (N'store-a', N'A0001', N'CustomerA')\nINSERT [dbo].[Customer] ([Store], [CustomerCode], [CustomerName]) VALUES (N'store-a', N'A0002', N'CustomerB')\nINSERT [dbo].[Customer] ([Store], [CustomerCode], [CustomerName]) VALUES (N'store-a', N'A0003', N'CustomerC')\nINSERT [dbo].[Customer] ([Store], [CustomerCode], [CustomerName]) VALUES (N'store-b', N'B0001', N'CustomerA')\nINSERT [dbo].[Customer] ([Store], [CustomerCode], [CustomerName]) VALUES (N'store-b', N'B0002', N'CustomerB')\nINSERT [dbo].[Customer] ([Store], [CustomerCode], [CustomerName]) VALUES (N'store-b', N'B0003', N'CustomerC')\n\n\nINSERT [dbo].[StandardCustomer] ([StandardCode], [StandardName]) VALUES (N'S0001', N'顧客A')\nINSERT [dbo].[StandardCustomer] ([StandardCode], [StandardName]) VALUES (N'S0002', N'顧客B')\nINSERT [dbo].[StandardCustomer] ([StandardCode], [StandardName]) VALUES (N'S0003', N'顧客C')\n\nINSERT [dbo].[CustomerMapping] ([CustomerID], [StandardID]) VALUES (1, 1)\nINSERT [dbo].[CustomerMapping] ([CustomerID], [StandardID]) VALUES (2, 2)\nINSERT [dbo].[CustomerMapping] ([CustomerID], [StandardID]) VALUES (3, 3)\nINSERT [dbo].[CustomerMapping] ([CustomerID], [StandardID]) VALUES (4, 1)\nINSERT [dbo].[CustomerMapping] ([CustomerID], [StandardID]) VALUES (5, 2)\nINSERT [dbo].[CustomerMapping] ([CustomerID], [StandardID]) VALUES (6, 3)\n\nCREATE VIEW [dbo].[CustomerView]\nAS   \nSELECT\nc.[Store],\nc.[CustomerCode],\nsc.[StandardCode],\nsc.[StandardName]\nFROM [dbo].[Customer] AS c\nLEFT OUTER JOIN [dbo].[CustomerMapping] AS cm ON c.[ID] = cm.[CustomerID]\nLEFT OUTER JOIN [dbo].[StandardCustomer] AS sc ON cm.[StandardID] = sc.[ID]\n\nSELECT * FROM [dbo].[Customer]\nSELECT * FROM [dbo].[StandardCustomer]\nSELECT * FROM [dbo].[CustomerMapping]\n\nSELECT * FROM [dbo].[CustomerView]\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"name": "master",
+						"type": "SqlOnDemand"
+					}
 				},
-				"connectVia": {
-					"referenceName": "AutoResolveIntegrationRuntime",
-					"type": "IntegrationRuntimeReference"
-				}
+				"type": "SqlQuery"
 			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
-			]
+			"dependsOn": []
 		}
 	]
 }
