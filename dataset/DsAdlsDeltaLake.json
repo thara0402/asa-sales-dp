@@ -1,0 +1,19 @@
+{
+	"name": "DsAdlsDeltaLake",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "gooner0102workspace-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "delta-test"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
